@@ -15,39 +15,242 @@
         <h1>Web Authetication API</h1>
         <p>MozMeetup Lima 05-2019</p>
 				<p class='fragment'>
-					<small>César Carruitero
-            <a href="http://github.com/ccarruitero">@ccarruitero</a>
+					<small>
+            <a href="http://twitter.com/mozillaperu">
+              <i class='fab fa-twitter'></i>
+              @mozillaperu
+            </a>
           </small>
 				</p>
       </section>
       <section>
         <h2>who I am?</h2>
+        <li class='fragment'><a href="http://github.com/ccarruitero">@ccarruitero</a></li>
         <li class='fragment'>Mozillian, Mozilla Contributor</li>
-        <li class='fragment'>software developer</li>
         <li class='fragment'>Open Source Contributor</li>
+        <li class='fragment'>software developer</li>
         <li class='fragment'>...</li>
       </section>
+      <section>
+        <img class='moz-logo' src='https://www.mozilla.org/media/protocol/img/logos/mozilla/black.40d1af88c248.svg' />
+      </section>
       <section data-background='https://raw.githubusercontent.com/ccarruitero/rust_talk/master/slides/pictures/comunidad.jpg'>
+        <img class='moz-logo' src='https://www.mozilla.org/media/protocol/img/logos/mozilla/black.40d1af88c248.svg' />
 				<blockquote>
           a global community of people who believe that <strong>openness</strong>, <strong>innovation</strong>, and <strong>opportunity</strong> are key to the continued health of the Internet.
         </blockquote>
       </section>
+      <section data-background='white'>
+        <img src='https://www.w3.org/2019/03/webauthn-color.png' />
+      </section>
       <section>
-        <h1 class='fragment'>Web Authentication API</h1>
-        <h3></h3>
+        <li class='fragment'>an extension of the Credential Management API</li>
+        <li class='fragment'>is part of the FIDO2 framework</li>
+        <li class='fragment'>passwordless authentication with public key cryptography</li>
       </section>
       <section>
         <h2>So?</h2>
       </section>
       <section>
-        <h2>is a new promised web standard</h2>
-          <a class='fragment' href='https://developer.mozilla.org/en-US/docs/Web/Web_Components#Specifications'>
-            <img src='images/spec.png' />
+        <h2>is a specification written by W3C and FIDO</h2>
+        <a href='https://w3c.github.io/webauthn/'>https://w3c.github.io/webauthn/</a>
+        <h4>with participation of Mozilla, Google, Microsoft .. </h4>
           </a>
       </section>
       <section>
+        <h1>FIDO2</h1>
+        <p class='fragment'>U2F + CTAP</p>
+        <p class='fragment'>WebAuthn + CTAP2</p>
+      </section>
+      <section>
+        <h1>passwordless</h1>
+        <h2 class='fragment'>why not passwords?</h2>
+        <img class='fragment' src='https://hypersecu.com/images/blog/real-time-attack-01.png' />
+      </section>
+      <section>
+        <h1>passwordless</h1>
+        <div class='fragment'>
+          <img src='https://cdn-images-1.medium.com/max/1600/1*zRCd1zBP9a0lSs0Xt_3uBQ.png' />
+        </div>
+      </section>
+      <section>
+        <h1>user verification</h1>
+        <img src='https://heise.cloudimg.io/width/2000/q50.png-lossy-50.webp-lossy-50.foil1/_www-heise-de_/imgs/18/2/4/0/4/7/5/1/webauthn-d6eccb133ed1a68a.png' />
+      </section>
+      <section>
+        <h1>public key cryptography</h1>
+        <p class='fragment'>
+          is a cryptographic system that uses pairs of keys: public keys which may be disseminated widely, and private keys which are known only to the owner
+        <a href='https://en.wikipedia.org/wiki/Public-key_cryptography'>https://en.wikipedia.org/wiki/Public-key_cryptography</a>
+        </p>
+      </section>
+      <section>
+        <h1>how it works?</h1>
+        <img src='https://webauthn.me/img/1-Web-Authentication-Entities.svg' />
+      </section>
+      <section>
+        <h1>Credential Manager API</h1>
+        <code class='fragment'>
+        navigator.credentials.store()
+        </code>
+        <code class='fragment'>
+        navigator.credentials.get()
+        </code>
+      </section>
+      <section>
+        <h1>WebAuthn</h1>
+        <code class='fragment'>
+        navigator.credentials.create()
+        </code>
+        <code class='fragment'>
+        navigator.credentials.get()
+        </code>
+      </section>
+      <section data-background='https://mdn.mozillademos.org/files/16189/WebAuthn_Registration_r4.png white' >
+      </section>
+      <section>
+        <code>PublicKeyCredentialCreationOptions</code>
+        <pre>
+        <code class='hljs javascript'>
+const cose_alg_ECDSA_w_SHA256 = -7;
+const cose_alg_ECDSA_w_SHA512 = -36;
+
+var createCredentialOptions = {
+    // Format of new credentials is publicKey
+    publicKey: {
+        // Relying Party
+        rp: {
+            name: "Example CORP",
+            id: "login.example.com",
+            icon: "https://login.example.com/login.ico"
+        },
+        // Cryptographic challenge from the server
+        challenge: new Uint8Array(26), 
+        // User
+        user: {
+            id: new Uint8Array(16),
+            name: "john.p.smith@example.com",
+            displayName: "John P. Smith",
+        },
+        // Requested format of new keypair
+        pubKeyCredParams: [{
+            type: "public-key",
+            alg: cose_alg_ECDSA_w_SHA256,
+        }],
+        // Timeout after 1 minute
+        timeout: 60000,
+        // Do not send the authenticator's origin attestation
+        attestation: "none",
+        extensions: {
+          uvm: true,
+          exts: true
+        },
+        // Filter out authenticators which are bound to the device
+        authenticatorSelection:{
+          authenticatorAttachment: "cross-platform",
+          requireResidentKey: true,
+          userVerification: "preferred"
+        },
+        // Exclude already existing credentials for the user
+        excludeCredentials: [
+          {
+            type: "public-key",
+            // the id for john.doe@example.com
+            id  : new Uint8Array(26) /* this actually is given by the server */
+          },
+          {
+            type: "public-key",
+            // the id for john-doe@example.com
+            id : new Uint8Array(26) /* another id */
+          }
+        ]
+    }
+};
+        </code>
+        </pre>
+      </section>
+      <section>
+        <code>PublicKeyCredentialRequestOptions</code>
+        <pre>
+        <code class='hljs javascript'>
+  var options = {
+  challenge: new Uint8Array([/* bytes sent from the server */]),
+  rpId: "example.com" /* will only work if the current domain
+                         is something like foo.example.com */
+  userVerification: "preferred",
+  timeout: 6000,     // Wait for a minute
+  allowCredentials: [
+    {
+      transports: "usb",
+      type: "public-key",
+      id: new Uint8Array(26) // actually provided by the server
+    },
+    {
+      transports: "internal",
+      type: "public-key",
+      id: new Uint8Array(26) // actually provided by the server
+    }
+  ],
+  extensions: {
+    uvm: true,  // RP wants to know how the user was verified
+    loc: false,
+    txAuthSimple: "Could you please verify yourself?"
+  }
+};
+        </code>
+        </pre>
+      </section>
+      <section>
+        <h1>FIDO2 Server</h1>
+        <h5 class='fragment'>Assertion and attestation verification</h5>
+      </section>
+      <section>
+        <h1>attestation response</h1>
+        <pre>
+        <code class='hljs javascript'>
+{
+    "rawId": "imCIoe8U_N9M1rTGeCqJ96TAu5uqSPa7YUzdh7qq-AdJlnBl8NwCpu2-sNj9UIVH5rAjX_RXlSGTGWKexKIZXA",
+    "id": "imCIoe8U_N9M1rTGeCqJ96TAu5uqSPa7YUzdh7qq-AdJlnBl8NwCpu2-sNj9UIVH5rAjX_RXlSGTGWKexKIZXA",
+    "response": {
+        "attestationObject": "o2NmbXRoZmlkby11MmZnYXR0U3RtdKJjc2lnWEYwRAIgRvfOaUcMVmHqrKzXSH2Inb4PIshESObwuPrtTS_W3RMCICF_qfvwZhDRF8bqiNGYty2iXcOxY8Tgi7TgQJHZqi4wY3g1Y4FZAlMwggJPMIIBN6ADAgECAgQ8aClNMA0GCSqGSIb3DQEBCwUAMC4xLDAqBgNVBAMTI1l1YmljbyBVMkYgUm9vdCBDQSBTZXJpYWwgNDU3MjAwNjMxMCAXDTE0MDgwMTAwMDAwMFoYDzIwNTAwOTA0MDAwMDAwWjAxMS8wLQYDVQQDDCZZdWJpY28gVTJGIEVFIFNlcmlhbCAyMzkyNTczNDgxMTExNzkwMTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABL3fZ5Pbd5TDUDFx7SxNRUrZc2Z1Gki6pdn5tWo6IIF5a07fK817knoUkxD7xGhHb_xXkql9ti-gKGvGoyACDmOjOzA5MCIGCSsGAQQBgsQKAgQVMS4zLjYuMS40LjEuNDE0ODIuMS41MBMGCysGAQQBguUcAgEBBAQDAgUgMA0GCSqGSIb3DQEBCwUAA4IBAQCqwA1RCX7sFaSGs3m8xINA-GfTly7Oamf7pHDjYMZEWfCtOELT_wgeceqJU5cbI_klwK0AwkcxGFIG8LOpGSn7kbdmtT_hM1Iqg1i40SC0q_t_6O8ke2T_xqYhSsHZvnM2_eDzqBg_k0tSGHX14_eJgK-XClseBCo4dtdLqL7v6S3S43PMZEHIlK182aT0fa09pP6vR5GYR1PjWgic5Mvj08g26tCip86lYVrX5EgQhsN3s2ZE0vuZa7zimyGtuJX3k4LuxUk-TsEzwhZ_B3H1mTFzEg_yjVPogaiXQMEyzzw0aCy7z05dvcHggCIfh1KZgUHdFJbXDzqwPyxbwH-taGF1dGhEYXRhWMRJlg3liA6MaHQ0Fw9kdmBbj-SuuaKGMseZXPO6gx2XY0EAAAAAAAAAAAAAAAAAAAAAAAAAAABAimCIoe8U_N9M1rTGeCqJ96TAu5uqSPa7YUzdh7qq-AdJlnBl8NwCpu2-sNj9UIVH5rAjX_RXlSGTGWKexKIZXKUBAgMmIAEhWCB7XpGVxTYo6jtkxB7sBR4Af_YM0GvInN5V7IvUIilN2yJYINphegJ6kNET_VIp0QOxssW8xxUFEgg5ic3HXmoGg4fS",
+        "clientDataJSON": "eyJjaGFsbGVuZ2UiOiJJSFdtWjFPa1MydDZLaHZYLWtvTnh1dGtZdU1WRXVuQ2pZTlNYWGdBeHZVIiwibmV3X2tleXNfbWF5X2JlX2FkZGVkX2hlcmUiOiJkbyBub3QgY29tcGFyZSBjbGllbnREYXRhSlNPTiBhZ2FpbnN0IGEgdGVtcGxhdGUuIFNlZSBodHRwczovL2dvby5nbC95YWJQZXgiLCJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIn0"
+    },
+    "getClientExtensionResults": {},
+    "type": "public-key"
+}
+        </code>
+        </pre>
+      </section>
+      <section>
+        <h1>assertion response</h1>
+        <pre>
+        <code class='hljs javascript'>
+{
+    "rawId": "imCIoe8U_N9M1rTGeCqJ96TAu5uqSPa7YUzdh7qq-AdJlnBl8NwCpu2-sNj9UIVH5rAjX_RXlSGTGWKexKIZXA",
+    "id": "imCIoe8U_N9M1rTGeCqJ96TAu5uqSPa7YUzdh7qq-AdJlnBl8NwCpu2-sNj9UIVH5rAjX_RXlSGTGWKexKIZXA",
+    "response": {
+        "authenticatorData": "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAAALQ",
+        "signature": "MEUCIQCFOqnsAFZLQmcPt2qSjnCb403SisGEASSjT3fOPuD5JgIgFr1i0_7OR_NiyXU_Usemg9ez8pilwSdQ4QwThlzmHs4",
+        "userHandle": "",
+        "clientDataJSON": "eyJjaGFsbGVuZ2UiOiJDUXF5aUlrQ00yWEtvaHVSdlNqTEFoNGZfSV9DTkc3SHNPQnZuNWFlOEVZIiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwidHlwZSI6IndlYmF1dGhuLmdldCJ9"
+    },
+    "getClientExtensionResults": {},
+    "type": "public-key"
+}
+        </code>
+        </pre>
+      </section>
+      <section>
         <h2>Browser Support</h2>
-        <img src='images/support.png'/>
+        <a href='https://caniuse.com/#search=webauthn'>Web Authentication API</a>
+        <img src='https://pbs.twimg.com/media/D2RkyHHUgAAnzGM.jpg' />
+      </section>
+      <section>
+        <h2>references</h2>
+        <li><a href='https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API'>MDN - Web Authentication API</a></li>
+        <li><a href='https://webauthn.guide/'>https://webauthn.guide</a></li>
+        <li><a href='https://webauthn.io/'>https://webauthn.io/</a></li>
+        <li><a href='https://github.com/herrjemand/awesome-webauthn'>WebAuthn Awesome</a></li>
       </section>
 
       <section>
